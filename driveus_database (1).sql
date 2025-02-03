@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Jan 27. 12:23
+-- Létrehozás ideje: 2025. Feb 03. 10:35
 -- Kiszolgáló verziója: 10.4.28-MariaDB
 -- PHP verzió: 8.2.4
 
@@ -43,7 +43,7 @@ CREATE TABLE `arlista` (
 
 CREATE TABLE `berlok` (
   `felhAz` char(8) NOT NULL,
-  `nev` varchar(100) NOT NULL,
+  `nev` text NOT NULL,
   `szemelyiigszam` varchar(8) NOT NULL,
   `jogostivanyszam` varchar(8) NOT NULL,
   `kibereltautok` varchar(100) NOT NULL,
@@ -60,6 +60,20 @@ CREATE TABLE `berlok` (
 CREATE TABLE `foglaltautok` (
   `foglalt_auto` int(11) NOT NULL,
   `foglalo` char(8) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `karbantartas`
+--
+
+CREATE TABLE `karbantartas` (
+  `utolso_szervizeles` datetime NOT NULL,
+  `jarmuAZ` int(11) DEFAULT NULL,
+  `allapota` text DEFAULT NULL,
+  `muszaki_vizsga_lejarat` datetime DEFAULT NULL,
+  `biztositas` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -90,7 +104,7 @@ CREATE TABLE `kolcsonozhetoautok` (
 
 CREATE TABLE `regisztraltfelhasznalok` (
   `felhAz` char(8) NOT NULL,
-  `nev` varchar(100) NOT NULL,
+  `nev` text NOT NULL,
   `jelszo` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
@@ -104,7 +118,7 @@ CREATE TABLE `telephelyek` (
   `telephelyId` int(11) NOT NULL,
   `nev` varchar(255) DEFAULT NULL,
   `cim` varchar(255) DEFAULT NULL,
-  `telefonszam` varchar(20) DEFAULT NULL
+  `telefonszam` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
 --
@@ -130,6 +144,12 @@ ALTER TABLE `berlok`
 ALTER TABLE `foglaltautok`
   ADD KEY `foglalt_auto` (`foglalt_auto`),
   ADD KEY `fk_foglaltautok_berlok` (`foglalo`);
+
+--
+-- A tábla indexei `karbantartas`
+--
+ALTER TABLE `karbantartas`
+  ADD KEY `jarmuAZ` (`jarmuAZ`);
 
 --
 -- A tábla indexei `kolcsonozhetoautok`
@@ -195,6 +215,12 @@ ALTER TABLE `foglaltautok`
   ADD CONSTRAINT `fk_foglaltautok_berlok` FOREIGN KEY (`foglalo`) REFERENCES `berlok` (`felhAz`),
   ADD CONSTRAINT `foglaltautok_ibfk_1` FOREIGN KEY (`foglalt_auto`) REFERENCES `kolcsonozhetoautok` (`jarmuAz`),
   ADD CONSTRAINT `foglaltautok_ibfk_2` FOREIGN KEY (`foglalo`) REFERENCES `berlok` (`felhAz`);
+
+--
+-- Megkötések a táblához `karbantartas`
+--
+ALTER TABLE `karbantartas`
+  ADD CONSTRAINT `karbantartas_ibfk_1` FOREIGN KEY (`jarmuAZ`) REFERENCES `kolcsonozhetoautok` (`jarmuAz`);
 
 --
 -- Megkötések a táblához `kolcsonozhetoautok`

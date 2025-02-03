@@ -26,9 +26,7 @@ CREATE TABLE berlok (
     nev VARCHAR(100) NOT NULL,
     szemelyiigszam VARCHAR(8) NOT NULL,
     jogostivanyszam VARCHAR(8) NOT NULL,
-    kibereltautok VARCHAR(100) NOT NULL,
-    foglalas_kezdete DATETIME NOT NULL,
-    foglalas_vege DATETIME NOT NULL
+    
    
 );
 
@@ -37,6 +35,8 @@ CREATE TABLE berlok (
 CREATE TABLE foglaltAutok (
     foglalt_auto INT NOT NULL,
     foglalo CHAR(8) NOT NULL,
+    foglalas_kezdete DATETIME NOT NULL,
+    foglalas_vege DATETIME NOT NULL,
     FOREIGN KEY (foglalt_auto) REFERENCES kolcsonozhetoautok(jarmuAz),
     FOREIGN KEY (foglalo) REFERENCES berlok(felhAz)
 );
@@ -44,10 +44,14 @@ CREATE TABLE foglaltAutok (
 
 4. //Regisztrált felhasználók tábla
 CREATE TABLE regisztraltfelhasznalok (
-    felhAz CHAR(8) NOT NULL PRIMARY KEY,
+    felhAz CHAR(8) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     nev VARCHAR(100) NOT NULL,
     jelszo VARCHAR(255) NOT NULL
 );
+ALTER TABLE regisztraltfelhasznalok 
+DROP PRIMARY KEY, 
+CHANGE felhAz INT(8) UNSIGNED NOT NULL AUTO_INCREMENT, 
+ADD PRIMARY KEY (felhAz);
 
 
  //Regisztrált felhasználók tábla felhAz mezőjének összekötése a berlok tábla felhAz mezőjével
@@ -86,3 +90,43 @@ ADD FOREIGN KEY (telephelyId) REFERENCES telephelyek(telephelyId);
 7. // Autók elérhetőségének követése:
 ALTER TABLE kolcsonozhetoautok
 ADD COLUMN statusz ENUM('szabad', 'foglalt', 'karbantartas') DEFAULT 'szabad';
+
+
+
+//Fizetési információk
+Bérléshez kapcsolt számlázási adatok:
+CREATE TABLE fizetesek (
+    fizetesId INT AUTO_INCREMENT PRIMARY KEY,
+    berlesId INT,
+    fizetesi_mod VARCHAR(20),
+    osszeg DOUBLE,
+    fizetes_datum DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (berlesId) REFERENCES berlok(felhAz)
+);
+
+
+
+CREATE TABLE auto_allapot (
+    jarmuAz INT AUTO_INCREMENT PRIMARY KEY,
+    ELOTTE_allapot TEXT,
+    UTANA_allapot TEXT,
+    idopont DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (jarmuAz) REFERENCES foglaltautok(foglalt_auto)
+);
+
+
+//Karbantartas tábla létrehozása
+CREATE TABLE karbantartas (
+utolso_szervizeles DATETIME NOT NULL,
+jarmuAZ INT,
+allapota TEXT,
+muszaki_vizsga_lejarat DATETIME,
+biztositas DATETIME,
+FOREIGN KEY (jarmuAz) REFERENCES kolcsonozhetoautok(jarmuAz)
+);
+______________________________________________________________________________________________________
+belrokhoz telefonszam-EMAILCIM
+ALTER TABLE regisztraltfelhasznalok
+ADD COLUMN telefonszam VARCHAR(15) NOT NULL UNIQUE,
+ADD COLUMN e-mail VARCHAR(100) NOT NULL UNIQUE;
+
